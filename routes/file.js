@@ -3,7 +3,7 @@ const { error } = require("console");
 const multer = require("multer");
 const path = require("path");
 const File = require("../models/file");
-const { v4: uuid } = require("uuid");
+const { v4: uuidv4 } = require("uuid");
 
 let storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "uploads"),
@@ -20,25 +20,30 @@ let upload = multer({
 }).single("myfile");
 router.post("/", (req, res) => {
   // Validate request
-  if (!req.file) {
-    return res.json({ error: "All fileds are required" });
-  }
+
   // Store File
-  upload(req, res, async(err) => {
+  upload(req, res, async (err) => {
+    if (!req.file) {
+      return res.json({ error: "All fileds are required" });
+    }
     if (err) {
       return res.status(500).send({ error: err.message });
     }
     // Store into Database
     const file = new File({
       filename: req.file.filename,
-      uuid: uuid4(),
+      uuid: uuidv4(),
       path: req.file.path,
-      size:req.file.size
+      size: req.file.size,
     });
-    const response= await file.save();
-    return res.json({file:`${process.env.APP_BASE_URL}/files/${response.uuid}`})
+    const response = await file.save();
+    return res.json({
+      file: `${process.env.APP_BASE_URL}/files/${response.uuid}`,
+    });
+    /*{
+    "file": "http://localhost:3000/files/1e7d5665-d7b7-4d34-98de-a261deae026e"
+}*/
   });
-  // Response -> Link
 });
 
 module.exports = router;

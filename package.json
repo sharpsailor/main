@@ -1,11 +1,11 @@
 {
   "name": "inshare-backend",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon server.js",
-    "serve": "node server.js"
+    "serve": "node server.js",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
@@ -19,5 +19,14 @@
   },
   "devDependencies": {
     "nodemon": "^2.0.20"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sharpsailor/main.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sharpsailor/main/issues"
+  },
+  "homepage": "https://github.com/sharpsailor/main#readme",
+  "description": ""
 }

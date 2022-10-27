@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv/config");
 const mongoose = require("mongoose");
 function handleError() {
   console.log("DataBase not connected ");
