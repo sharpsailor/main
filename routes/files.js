@@ -60,18 +60,19 @@ router.post("/send", async (req, res) => {
   const response = await file.save();
 
   // Send Email
-  const sendMail = require('../services/emailService');
+  const sendMail = require("../services/emailService");
   sendMail({
-    from:emailFrom,
-    to:emailTo,
-    subject:'inShare file sharing',
+    from: emailFrom,
+    to: emailTo,
+    subject: "inShare file sharing",
     text: `${emailFrom} shared file with you.`,
-    html:require('../services/emailTemplate')({
-      emailFrom:emailFrom,
-      downloadLink:`${process.env.APP_BASE_URL}/files/${file.uuid}`,
-      size:parseInt(file.size/1000)+ 'KB',
-      expires:'24 hours'
-    })
-  })
+    html: require("../services/emailTemplate")({
+      emailFrom: emailFrom,
+      downloadLink: `${process.env.APP_BASE_URL}/files/${file.uuid}`,
+      size: parseInt(file.size / 1000) + "KB",
+      expires: "24 hours",
+    }),
+  });
+  return res.send({ sucess: true});
 });
 module.exports = router;
