@@ -1,20 +1,12 @@
 require("dotenv/config");
 const mongoose = require("mongoose");
-function handleError() {
-  console.log("DataBase not connected ");
-}
- function connectDB() {
-  // DataBase Connection
-  try {
-     mongoose.connect(process.env.MONGO_CONNECTION_URL, {
-      useNewUrlParser: true,
-        // useCreateIndex: true,
+const ConnectDB = async () => {
+  mongoose
+    .connect(process.env.MONGO_CONNECTION_URL, {
       useUnifiedTopology: true,
-        // useFindAndModify: true,
-    });
-    console.log("Database Connected")
-  } catch (error) {
-    handleError(error);
-  }
-}
-module.exports = connectDB;
+    })
+    .then(console.log("Connected to the server"))
+    .catch((err) => console.log(err));
+};
+
+module.exports = ConnectDB;

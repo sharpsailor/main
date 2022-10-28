@@ -1,12 +1,11 @@
 const router = require("express").Router();
-const { error } = require("console");
 const multer = require("multer");
 const path = require("path");
 const File = require("../models/file");
 const { v4: uuidv4 } = require("uuid");
 
 let storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads"),
+  destination: (req, file, cb) => cb(null, "uploads/"),
   filename: (req, file, cb) => {
     const uniqueName = `${Date.now()}-${Math.round(
       Math.random() * 1e9
@@ -22,9 +21,6 @@ router.post("/", (req, res) => {
   // Store File
   upload(req, res, async (err) => {
     // Validate request
-    if (!req.file) {
-      return res.json({ error: "All fileds are required" });
-    }
     if (err) {
       return res.status(500).send({ error: err.message });
     }
@@ -45,34 +41,44 @@ router.post("/", (req, res) => {
   });
 });
 router.post("/send", async (req, res) => {
-  const { uuid, emailTo, emailFrom } = req.body;
-  // Validate Request
+  const { uuid, emailTo, emailFrom, expiresIn } = req.body;
   if (!uuid || !emailTo || !emailFrom) {
-    return res.status(422).send({ error: "all fields are required" });
+    return res
+      .status(422)
+      .send({ error: "All fields are required except expiry." });
   }
-  // Get data from database
-  const file = await File.findOne({ uuid: uuid });
-  if (file.sender) {
-    return res.status(422).send({ error: "Email already sent." });
+  // Get data from db
+  try {
+    const file = await File.findOne({ uuid: uuid });
+    if (file.sender) {
+      return res.status(422).send({ error: "Email already sent once." });
+    }
+    file.sender = emailFrom;
+    file.receiver = emailTo;
+    const response = await file.save();
+    // send mail
+    const sendMail = require("../services/mailService");
+    sendMail({
+      from: emailFrom,
+      to: emailTo,
+      subject: "inShare file sharing",
+      text: `${emailFrom} shared a file with you.`,
+      html: require("../services/emailTemplate")({
+        emailFrom,
+        downloadLink: `${process.env.APP_BASE_URL}/files/${file.uuid}?source=email`,
+        size: parseInt(file.size / 1000) + " KB",
+        expires: "24 hours",
+      }),
+    })
+      .then(() => {
+        return res.json({ success: true });
+      })
+      .catch((err) => {
+        return res.status(500).json({ error: "Error in email sending." });
+      });
+  } catch (err) {
+    return res.status(500).send({ error: "Something went wrong." });
   }
-  file.sender = emailFrom;
-  file.receiver = emailTo;
-  const response = await file.save();
-
-  // Send Email
-  const sendMail = require("../services/emailService");
-  sendMail({
-    from: emailFrom,
-    to: emailTo,
-    subject: "inShare file sharing",
-    text: `${emailFrom} shared file with you.`,
-    html: require("../services/emailTemplate")({
-      emailFrom: emailFrom,
-      downloadLink: `${process.env.APP_BASE_URL}/files/${file.uuid}`,
-      size: parseInt(file.size / 1000) + "KB",
-      expires: "24 hours",
-    }),
-  });
-  return res.send({ sucess: true});
 });
+
 module.exports = router;
