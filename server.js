@@ -7,7 +7,7 @@ app.use(express.json());
 
 const connectDB = require("./config/db");
 connectDB();
-// Template engine
+// Template engines
 app.set("views", path.join(__dirname, "/views"));
 app.set("view engine", "ejs");
 // Routes
