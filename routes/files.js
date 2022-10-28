@@ -49,6 +49,12 @@ router.post("/send", async (req, res) => {
   }
   // Get data from db
   try {
+    let downloadLink ;
+    if(process.env.APP_BASE_URL.endsWith('/')){
+      downloadLink = `${process.env.APP_BASE_URL}files/download/${file.uuid}`
+    }else{
+      downloadLink = `${process.env.APP_BASE_URL}/files/download/${file.uuid}`
+    }
     const file = await File.findOne({ uuid: uuid });
     if (file.sender) {
       return res.status(422).send({ error: "Email already sent once." });
@@ -65,10 +71,12 @@ router.post("/send", async (req, res) => {
       text: `${emailFrom} shared a file with you.`,
       html: require("../services/emailTemplate")({
         emailFrom,
-        downloadLink: `${process.env.APP_BASE_URL}/files/${file.uuid}?source=email`,
+        downloadLink,
+        // downloadLink: `${process.env.APP_BASE_URL}/files/${file.uuid}?source=email`,
         size: parseInt(file.size / 1000) + " KB",
         expires: "24 hours",
       }),
+      
     })
       .then(() => {
         return res.json({ success: true });
