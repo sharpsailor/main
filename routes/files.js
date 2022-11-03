@@ -40,9 +40,9 @@ router.post("/", (req, res) => {
 }*/
   });
 });
-router.get("/", (req, res)=>{
-  res.send("Hello from the server")
-})
+// router.get("/", (req, res)=>{
+//   res.send("Hello from the server")
+// })
 router.post("/send", async (req, res) => {
   const { uuid, emailTo, emailFrom, expiresIn } = req.body;
   if (!uuid || !emailTo || !emailFrom) {
