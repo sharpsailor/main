@@ -20,7 +20,7 @@ let upload = multer({
 router.post("/", (req, res) => {
   // Store File
   upload(req, res, async (err) => {
-      // Validate request
+    // Validate request
     if (err) {
       return res.status(500).send({ error: err.message });
     }

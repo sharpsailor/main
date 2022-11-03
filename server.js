@@ -1,3 +1,4 @@
+require("dotenv/config");
 const express = require("express");
 const app = express();
 const path = require("path");
@@ -15,6 +16,7 @@ const corsOptions = {
   // ['http://localhost:3000','http://localhost:3300','http://localhost:5000']
 };
 app.use(cors(corsOptions));
+
 // Template engines
 app.set("views", path.join(__dirname, "/views"));
 app.set("view engine", "ejs");
